@@ -2,404 +2,906 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Controle Financeiro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Controle de Gastos do Cartão</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #27ae60;
-            --danger-color: #e74c3c;
-            --light-bg: #f8f9fa;
-            --border-color: #e0e0e0;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
         body {
-            background-color: #f4f6f9;
-            color: #333;
-            padding: 12px;
-            display: flex;
-            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            -webkit-tap-highlight-color: transparent;
         }
-
-        .container {
-            width: 100%;
-            max-width: 800px;
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        h1, h2 {
-            color: var(--primary-color);
-            margin-bottom: 16px;
-            text-align: center;
-            font-size: 1.5rem;
-        }
-
-        /* Resumo em Cards */
-        .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            background: var(--light-bg);
-            padding: 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-        }
-
-        .card span {
-            font-size: 0.85rem;
-            color: #666;
-            display: block;
-        }
-
-        .card strong {
-            font-size: 1.2rem;
-            color: var(--primary-color);
-        }
-
-        /* Formulario Responsivo */
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-            background: var(--light-bg);
-            padding: 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-        }
-
-        .input-row {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        @media (min-width: 600px) {
-            .input-row {
-                flex-direction: row;
-            }
-            .input-row > * {
-                flex: 1;
-            }
-        }
-
-        label {
-            font-size: 0.85rem;
+        .tab-active {
+            color: #2563eb;
+            border-bottom: 2px solid #2563eb;
             font-weight: 600;
-            color: #555;
-            margin-bottom: 2px;
         }
-
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 0.95rem;
+        .nav-item-active {
+            color: #2563eb;
         }
-
-        button {
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: background 0.2s;
+        /* Custom scrollbar for tables */
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 6px;
         }
-
-        .btn-submit {
-            background-color: var(--secondary-color);
-            color: white;
-            width: 100%;
-        }
-
-        .btn-submit:hover {
-            background-color: #219150;
-        }
-
-        .btn-danger {
-            background-color: var(--danger-color);
-            color: white;
-            padding: 6px 10px;
-            font-size: 0.8rem;
-        }
-
-        /* Ações de Backup */
-        .actions-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .btn-secondary {
-            background-color: var(--primary-color);
-            color: white;
-            flex: 1;
-            font-size: 0.85rem;
-        }
-
-        /* Tabela Responsiva para Celular (Visão em Cards) */
-        .responsive-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .responsive-table th, .responsive-table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        @media (max-width: 600px) {
-            .responsive-table thead {
-                display: none;
-            }
-
-            .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
-                display: block;
-                width: 100%;
-            }
-
-            .responsive-table tr {
-                margin-bottom: 12px;
-                background: #fff;
-                border: 1px solid var(--border-color);
-                border-radius: 8px;
-                padding: 10px;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            }
-
-            .responsive-table td {
-                text-align: right;
-                padding-left: 50%;
-                position: relative;
-                border-bottom: 1px dotted #eee;
-            }
-
-            .responsive-table td:last-child {
-                border-bottom: none;
-            }
-
-            .responsive-table td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                width: 45%;
-                text-align: left;
-                font-weight: bold;
-                color: #666;
-                font-size: 0.85rem;
-            }
-        }
-
-        .empty-state {
-            text-align: center;
-            color: #777;
-            padding: 20px;
-            font-style: italic;
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
         }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col pb-20 md:pb-6">
 
-<div class="container">
-    <h1>Controle de Registros</h1>
-
-    <!-- Resumo dos Totais -->
-    <div class="summary-cards">
-        <div class="card">
-            <span>Total de Registros</span>
-            <strong id="totalCount">0</strong>
-        </div>
-        <div class="card">
-            <span>Valor Total</span>
-            <strong id="totalValue">R$ 0,00</strong>
-        </div>
-    </div>
-
-    <!-- Formulário -->
-    <form id="recordForm" class="form-group">
-        <div class="input-row">
-            <div>
-                <label for="description">Descrição</label>
-                <input type="text" id="description" placeholder="Ex: Conta de Luz" required>
+    <!-- HEADER / TOP BAR -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 text-white p-2 rounded-xl shadow-md shadow-blue-500/20">
+                    <i data-lucide="credit-card" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 leading-tight">Controle de Cartão</h1>
+                    <p class="text-xs text-slate-500 font-medium">Itaú Black Pontos • Bruno & Fernanda</p>
+                </div>
             </div>
-            <div>
-                <label for="value">Valor (R$)</label>
-                <input type="number" id="value" step="0.01" placeholder="0,00" required>
-            </div>
-        </div>
-        <div class="input-row">
-            <div>
-                <label for="dueDate">Vencimento / Data</label>
-                <input type="date" id="dueDate" required>
-            </div>
-            <div>
-                <label for="status">Status</label>
-                <select id="status">
-                    <option value="Pendente">Pendente</option>
-                    <option value="Pago">Pago</option>
+            
+            <!-- Invoice Selector Dropdown -->
+            <div class="flex items-center space-x-2">
+                <select id="invoiceSelector" onchange="changeInvoice(this.value)" class="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 text-sm font-semibold rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition">
+                    <option value="Mai-2026">Fatura Mai/2026</option>
+                    <option value="Jun-2026" selected>Fatura Jun/2026</option>
+                    <option value="Ago-2026">Fatura Ago/2026</option>
                 </select>
+                <button onclick="openInvoiceModal()" class="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition" title="Nova Fatura / Gerenciar">
+                    <i data-lucide="folder-plus" class="w-5 h-5"></i>
+                </button>
             </div>
         </div>
-        <button type="submit" class="btn-submit">Adicionar Registro</button>
-    </form>
+    </header>
 
-    <!-- Botões de Backup / Limpar -->
-    <div class="actions-bar">
-        <button class="btn-secondary" onclick="exportData()">Exportar Backup (JSON)</button>
-        <button class="btn-secondary" onclick="document.getElementById('importFile').click()">Importar JSON</button>
-        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-5xl mx-auto px-4 pt-4 flex-1 w-full space-y-6">
+
+        <!-- DASHBOARD SUMMARY CARDS -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Total Bruno -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-blue-600"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Bruno</span>
+                    <span class="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="user" class="w-4 h-4"></i></span>
+                </div>
+                <div id="statTotalBruno" class="text-2xl font-extrabold text-slate-900 mt-2">R$ 0,00</div>
+                <div class="mt-2 text-xs text-slate-500 flex justify-between border-t border-slate-100 pt-2">
+                    <span>Apenas Bruno: <strong id="statApenasBruno" class="text-slate-700">R$ 0,00</strong></span>
+                    <span>50% Divididos: <strong id="statMetaBruno" class="text-slate-700">R$ 0,00</strong></span>
+                </div>
+            </div>
+
+            <!-- Total Fernanda -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-purple-600"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Fernanda</span>
+                    <span class="p-1.5 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="user-check" class="w-4 h-4"></i></span>
+                </div>
+                <div id="statTotalFernanda" class="text-2xl font-extrabold text-slate-900 mt-2">R$ 0,00</div>
+                <div class="mt-2 text-xs text-slate-500 flex justify-between border-t border-slate-100 pt-2">
+                    <span>Apenas Fernanda: <strong id="statApenasFernanda" class="text-slate-700">R$ 0,00</strong></span>
+                    <span>50% Divididos: <strong id="statMetaFernanda" class="text-slate-700">R$ 0,00</strong></span>
+                </div>
+            </div>
+
+            <!-- Total Geral da Fatura -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 rounded-2xl shadow-md relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Fatura Total</span>
+                    <span class="p-1.5 bg-white/10 text-white rounded-lg"><i data-lucide="pie-chart" class="w-4 h-4"></i></span>
+                </div>
+                <div id="statTotalFatura" class="text-2xl font-extrabold mt-2 text-white">R$ 0,00</div>
+                <div class="mt-2 text-xs text-slate-300 flex justify-between border-t border-white/10 pt-2">
+                    <span>Gastos Divididos (100%): <strong id="statTotalDividido" class="text-white">R$ 0,00</strong></span>
+                    <span>Lançamentos: <strong id="statTotalItens" class="text-white">0</strong></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- NAVIGATION TABS -->
+        <div class="bg-white rounded-xl border border-slate-200/80 p-1 flex space-x-1 text-sm font-medium">
+            <button id="tabBtnExpenses" onclick="switchTab('expenses')" class="flex-1 py-2 px-3 rounded-lg text-center transition flex items-center justify-center space-x-2 bg-blue-50 text-blue-600 font-semibold shadow-sm">
+                <i data-lucide="list" class="w-4 h-4"></i>
+                <span>Lançamentos</span>
+            </button>
+            <button id="tabBtnCategories" onclick="switchTab('categories')" class="flex-1 py-2 px-3 rounded-lg text-center text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition flex items-center justify-center space-x-2">
+                <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                <span>Categorias</span>
+            </button>
+            <button id="tabBtnBackup" onclick="switchTab('backup')" class="flex-1 py-2 px-3 rounded-lg text-center text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition flex items-center justify-center space-x-2">
+                <i data-lucide="database" class="w-4 h-4"></i>
+                <span>Dados / Backup</span>
+            </button>
+        </div>
+
+        <!-- TAB CONTENT: LANÇAMENTOS -->
+        <section id="tabExpenses" class="space-y-4">
+            <!-- Filter & Action Bar -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200/80">
+                <div class="flex items-center space-x-2 flex-1">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+                        <input type="text" id="searchInput" oninput="renderExpensesTable()" placeholder="Buscar lançamentos..." class="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <select id="filterCategory" onchange="renderExpensesTable()" class="bg-slate-50 border border-slate-200 text-xs font-medium rounded-lg px-2.5 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="ALL">Todas Categorias</option>
+                    </select>
+                </div>
+                <button onclick="openExpenseModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow-sm transition flex items-center justify-center space-x-2">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Novo Gasto</span>
+                </button>
+            </div>
+
+            <!-- Expense Table -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-500">
+                                <th class="py-3 px-4">Data</th>
+                                <th class="py-3 px-4">Descrição</th>
+                                <th class="py-3 px-4">Observação</th>
+                                <th class="py-3 px-4 text-right">Valor</th>
+                                <th class="py-3 px-4">Quem Passou</th>
+                                <th class="py-3 px-4 text-center">É Dividido?</th>
+                                <th class="py-3 px-4 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expenseTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="emptyExpenseState" class="hidden p-8 text-center text-slate-400 space-y-2">
+                    <i data-lucide="inbox" class="w-10 h-10 mx-auto text-slate-300"></i>
+                    <p class="text-sm font-medium">Nenhum gasto encontrado para esta fatura.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: CATEGORIAS E GRÁFICOS -->
+        <section id="tabCategories" class="hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Category Chart -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                    <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center space-x-2">
+                        <i data-lucide="pie-chart" class="w-5 h-5 text-blue-600"></i>
+                        <span>Distribuição por Categoria</span>
+                    </h3>
+                    <div class="relative w-full aspect-square max-h-72 flex items-center justify-center mx-auto">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Category Breakdown Table -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center space-x-2">
+                        <i data-lucide="table" class="w-5 h-5 text-blue-600"></i>
+                        <span>Resumo por Tipo de Gasto</span>
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-xs font-bold uppercase text-slate-400">
+                                    <th class="pb-2">Grupo / Categoria</th>
+                                    <th class="pb-2 text-right">Valor Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categorySummaryBody" class="divide-y divide-slate-100 font-medium">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: BACKUP E DADOS -->
+        <section id="tabBackup" class="hidden space-y-4">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-6">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 mb-1 flex items-center space-x-2">
+                        <i data-lucide="database" class="w-5 h-5 text-blue-600"></i>
+                        <span>Gestão de Dados e Backup</span>
+                    </h3>
+                    <p class="text-xs text-slate-500">Seus dados são salvos de forma 100% privada no seu próprio navegador (LocalStorage). Você pode exportar ou importar arquivos JSON a qualquer momento.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <button onclick="exportDataJSON()" class="p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left transition space-y-2">
+                        <div class="p-2 bg-blue-100 text-blue-600 rounded-lg w-fit"><i data-lucide="download" class="w-5 h-5"></i></div>
+                        <div class="font-bold text-slate-800 text-sm">Exportar Backup (JSON)</div>
+                        <div class="text-xs text-slate-500">Baixe todas as faturas e gastos para segurança.</div>
+                    </button>
+
+                    <label class="p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left transition space-y-2 cursor-pointer">
+                        <div class="p-2 bg-green-100 text-green-600 rounded-lg w-fit"><i data-lucide="upload" class="w-5 h-5"></i></div>
+                        <div class="font-bold text-slate-800 text-sm">Restaurar Backup (JSON)</div>
+                        <div class="text-xs text-slate-500">Carregue um arquivo JSON salvo anteriormente.</div>
+                        <input type="file" id="importJsonInput" accept=".json" onchange="importDataJSON(event)" class="hidden">
+                    </label>
+
+                    <button onclick="resetDataToDefault()" class="p-4 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-left transition space-y-2">
+                        <div class="p-2 bg-red-100 text-red-600 rounded-lg w-fit"><i data-lucide="rotate-ccw" class="w-5 h-5"></i></div>
+                        <div class="font-bold text-red-800 text-sm">Restaurar Dados Iniciais</div>
+                        <div class="text-xs text-red-600">Voltar aos dados originais da planilha do Excel.</div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: ADD/EDIT EXPENSE -->
+    <div id="expenseModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all">
+            <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center">
+                <h3 id="modalTitle" class="font-bold text-base flex items-center space-x-2">
+                    <i data-lucide="edit-3" class="w-4 h-4 text-blue-400"></i>
+                    <span>Lançar Novo Gasto</span>
+                </h3>
+                <button onclick="closeExpenseModal()" class="text-slate-400 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <form id="expenseForm" onsubmit="saveExpense(event)" class="p-5 space-y-4">
+                <input type="hidden" id="expenseId">
+                
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Data</label>
+                    <input type="date" id="formDate" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Categoria (Descrição)</label>
+                    <select id="formCategory" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Observação (Estabelecimento/Detalhe)</label>
+                    <input type="text" id="formObservation" placeholder="Ex: Giassi, Ifood, Mercado Livre..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Valor (R$)</label>
+                    <input type="number" step="0.01" id="formAmount" required placeholder="0,00" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none font-semibold text-slate-900">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Quem Passou</label>
+                        <select id="formPayer" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white font-medium">
+                            <option value="BRUNO">BRUNO</option>
+                            <option value="FERNANDA">FERNANDA</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">É Dividido?</label>
+                        <select id="formSplit" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white font-medium">
+                            <option value="SIM">SIM (50 / 50)</option>
+                            <option value="NÃO">NÃO (Individual)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+                    <button type="button" onclick="closeExpenseModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 text-sm font-semibold hover:bg-slate-50 transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-md transition">Salvar Gasto</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- Tabela de Dados -->
-    <h2>Registros Cadastrados</h2>
-    <table class="responsive-table">
-        <thead>
-            <tr>
-                <th>Descrição</th>
-                <th>Valor</th>
-                <th>Data</th>
-                <th>Status</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody id="recordsList">
-            <!-- Os dados zerados aparecem aqui -->
-        </tbody>
-    </table>
-</div>
+    <!-- MODAL: MANAGE INVOICES -->
+    <div id="invoiceModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+            <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center">
+                <h3 class="font-bold text-base flex items-center space-x-2">
+                    <i data-lucide="calendar" class="w-4 h-4 text-blue-400"></i>
+                    <span>Nova Fatura</span>
+                </h3>
+                <button onclick="closeInvoiceModal()" class="text-slate-400 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="createNewInvoice(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Nome da Fatura</label>
+                    <input type="text" id="newInvoiceName" placeholder="Ex: Set-2026, Out-2026..." required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div class="pt-2 flex justify-end space-x-2">
+                    <button type="button" onclick="closeInvoiceModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 text-sm font-semibold hover:bg-slate-50 transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-md transition">Criar Fatura</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-<script>
-    let records = [];
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- CATEGORIES FROM EXCEL DROP DOWN LIST ---
+        const CATEGORIES = [
+            "Alimentação - Almoço",
+            "Alimentação - Café",
+            "Alimentação - Diversos",
+            "Alimentação - Jantar",
+            "Assinatura mensal",
+            "Carro - Combustível",
+            "Carro - Manutenção",
+            "Carro - Revisão",
+            "Carro - Seguro",
+            "Compras diversas (para nós)",
+            "Compras diversas (para terceiros)",
+            "Consulta Médica",
+            "Exames",
+            "Lazer",
+            "Mercado",
+            "Nutella - Banho",
+            "Nutella - Consultas / Exames",
+            "Nutella - Diversos",
+            "Nutella - Ração",
+            "Nutella - Remédios",
+            "Remédio",
+            "Vestuário"
+        ];
 
-    // Inicializa carregando do LocalStorage
-    document.addEventListener("DOMContentLoaded", () => {
-        loadRecords();
-    });
+        // --- INITIAL DATA LOADED FROM ATTACHED FILES ---
+        const INITIAL_DATA = {
+            "Mai-2026": [
+                { id: "mai-1", date: "2026-11-24", category: "Compras diversas (para terceiros)", obs: "Presente casamento Débora e Jean", amount: 211.56, payer: "BRUNO", split: "SIM" },
+                { id: "mai-2", date: "2026-12-19", category: "Compras diversas (para nós)", obs: "Smartwatch Samsung", amount: 190.90, payer: "BRUNO", split: "NÃO" },
+                { id: "mai-3", date: "2026-12-04", category: "Assinatura mensal", obs: "Globoplay", amount: 22.90, payer: "BRUNO", split: "SIM" },
+                { id: "mai-4", date: "2026-02-25", category: "Remédio", obs: "", amount: 74.80, payer: "FERNANDA", split: "NÃO" },
+                { id: "mai-5", date: "2026-03-05", category: "Carro - Revisão", obs: "", amount: 242.00, payer: "BRUNO", split: "SIM" },
+                { id: "mai-6", date: "2026-03-17", category: "Lazer", obs: "Ingresso show", amount: 132.54, payer: "BRUNO", split: "SIM" },
+                { id: "mai-7", date: "2026-05-18", category: "Compras diversas (para nós)", obs: "Tag ConectCar", amount: 50.00, payer: "BRUNO", split: "SIM" },
+                { id: "mai-8", date: "2026-05-18", category: "Assinatura mensal", obs: "Spotify", amount: 40.90, payer: "BRUNO", split: "SIM" },
+                { id: "mai-9", date: "2026-05-18", category: "Mercado", obs: "Giassi", amount: 134.88, payer: "BRUNO", split: "SIM" },
+                { id: "mai-10", date: "2026-05-18", category: "Nutella - Ração", obs: "", amount: 47.95, payer: "BRUNO", split: "SIM" },
+                { id: "mai-11", date: "2026-04-20", category: "Compras diversas (para nós)", obs: "Nubank - Mercadolivre - Panela de ferro", amount: 116.16, payer: "BRUNO", split: "SIM" },
+                { id: "mai-12", date: "2026-04-19", category: "Alimentação - Jantar", obs: "Nubank - Ifood", amount: 47.98, payer: "BRUNO", split: "SIM" },
+                { id: "mai-13", date: "2026-04-20", category: "Alimentação - Jantar", obs: "Nubank - Ifood", amount: 41.93, payer: "BRUNO", split: "SIM" },
+                { id: "mai-14", date: "2026-04-20", category: "Carro - Combustível", obs: "Nubank - Abastecimento", amount: 150.00, payer: "BRUNO", split: "SIM" },
+                { id: "mai-15", date: "2026-04-20", category: "Assinatura mensal", obs: "Nubank - Amazon Prime Canais", amount: 44.90, payer: "BRUNO", split: "SIM" },
+                { id: "mai-16", date: "2026-04-20", category: "Mercado", obs: "Nubank - Giassi", amount: 192.52, payer: "BRUNO", split: "SIM" },
+                { id: "mai-17", date: "2026-04-20", category: "Alimentação - Café", obs: "Nubank - Ifood salgadinhos", amount: 103.42, payer: "BRUNO", split: "NÃO" }
+            ],
+            "Jun-2026": [
+                { id: "jun-1", date: "2026-12-19", category: "Compras diversas (para nós)", obs: "Smartwatch Samsung", amount: 190.90, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-2", date: "2026-12-05", category: "Assinatura mensal", obs: "Globoplay", amount: 22.90, payer: "BRUNO", split: "SIM" },
+                { id: "jun-3", date: "2026-02-25", category: "Remédio", obs: "", amount: 74.80, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-4", date: "2026-03-05", category: "Carro - Revisão", obs: "", amount: 242.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-5", date: "2026-04-26", category: "Remédio", obs: "", amount: 89.32, payer: "FERNANDA", split: "SIM" },
+                { id: "jun-6", date: "2026-05-01", category: "Compras diversas (para nós)", obs: "Jonas", amount: 113.34, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-7", date: "2026-05-16", category: "Lazer", obs: "Ingresso show samba", amount: 142.55, payer: "BRUNO", split: "SIM" },
+                { id: "jun-8", date: "2026-05-19", category: "Alimentação - Almoço", obs: "San pietro", amount: 66.00, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-9", date: "2026-05-19", category: "Carro - Combustível", obs: "", amount: 150.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-10", date: "2026-05-20", category: "Nutella - Remédios", obs: "Micofenolato - Remanipulação", amount: 80.00, payer: "FERNANDA", split: "SIM" },
+                { id: "jun-11", date: "2026-05-20", category: "Compras diversas (para nós)", obs: "Corte cabelo", amount: 100.00, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-12", date: "2026-05-20", category: "Mercado", obs: "Giassi", amount: 116.33, payer: "BRUNO", split: "SIM" },
+                { id: "jun-13", date: "2026-05-21", category: "Alimentação - Almoço", obs: "Ifood", amount: 30.86, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-14", date: "2026-05-21", category: "Alimentação - Diversos", obs: "Brisa", amount: 18.89, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-15", date: "2026-05-21", category: "Compras diversas (para nós)", obs: "Leo Cosmeticos", amount: 18.49, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-16", date: "2026-05-21", category: "Compras diversas (para nós)", obs: "Jogo mega", amount: 31.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-17", date: "2026-05-21", category: "Alimentação - Jantar", obs: "Ifood", amount: 33.09, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-18", date: "2026-05-22", category: "Lazer", obs: "Ingressos Mundial Rock", amount: 50.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-19", date: "2026-05-22", category: "Compras diversas (para nós)", obs: "Millium", amount: 24.90, payer: "BRUNO", split: "SIM" },
+                { id: "jun-20", date: "2026-05-22", category: "Nutella - Banho", obs: "Jubalupe", amount: 85.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-21", date: "2026-05-22", category: "Alimentação - Almoço", obs: "Ifood", amount: 29.67, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-22", date: "2026-05-22", category: "Alimentação - Jantar", obs: "Ifood", amount: 40.48, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-23", date: "2026-05-22", category: "Compras diversas (para terceiros)", obs: "Presente Alice", amount: 119.99, payer: "BRUNO", split: "SIM" },
+                { id: "jun-24", date: "2026-05-22", category: "Compras diversas (para terceiros)", obs: "Presente Vovó", amount: 100.75, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-25", date: "2026-05-22", category: "Compras diversas (para terceiros)", obs: "Brinquedo Luna e Clifford", amount: 87.80, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-26", date: "2026-05-23", category: "Mercado", obs: "Brisa", amount: 94.79, payer: "BRUNO", split: "SIM" },
+                { id: "jun-27", date: "2026-05-23", category: "Lazer", obs: "Top gun (aniversário Thaise)", amount: 272.70, payer: "BRUNO", split: "SIM" },
+                { id: "jun-28", date: "2026-05-24", category: "Carro - Combustível", obs: "", amount: 150.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-29", date: "2026-05-24", category: "Alimentação - Almoço", obs: "Vadinho", amount: 150.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-30", date: "2026-05-24", category: "Mercado", obs: "Giassi", amount: 316.43, payer: "BRUNO", split: "SIM" },
+                { id: "jun-31", date: "2026-05-24", category: "Remédio", obs: "Ifood (preço popular)", amount: 43.47, payer: "BRUNO", split: "SIM" },
+                { id: "jun-32", date: "2026-05-24", category: "Mercado", obs: "Café Amazon", amount: 90.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-33", date: "2026-05-24", category: "Alimentação - Jantar", obs: "Pizza", amount: 106.33, payer: "BRUNO", split: "SIM" },
+                { id: "jun-34", date: "2026-05-25", category: "Nutella - Consultas / Exames", obs: "Consulta de rotina e exame de sangue", amount: 159.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-35", date: "2026-05-25", category: "Mercado", obs: "Pasta de amendoim", amount: 57.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-36", date: "2026-05-25", category: "Mercado", obs: "Brisa", amount: 13.47, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-37", date: "2026-05-25", category: "Compras diversas (para nós)", obs: "Millium", amount: 102.70, payer: "BRUNO", split: "SIM" },
+                { id: "jun-38", date: "2026-05-26", category: "Alimentação - Almoço", obs: "Ifood", amount: 69.00, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-39", date: "2026-05-26", category: "Alimentação - Diversos", obs: "Docinho", amount: 12.00, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-40", date: "2026-05-27", category: "Assinatura mensal", obs: "Netflix", amount: 59.90, payer: "BRUNO", split: "SIM" },
+                { id: "jun-41", date: "2026-05-27", category: "Carro - Seguro", obs: "Parcela 1/10", amount: 265.48, payer: "BRUNO", split: "SIM" },
+                { id: "jun-42", date: "2026-05-27", category: "Nutella - Consultas / Exames", obs: "Exame de sangue e urina", amount: 134.33, payer: "BRUNO", split: "SIM" },
+                { id: "jun-43", date: "2026-05-27", category: "Mercado", obs: "Brisa", amount: 44.60, payer: "BRUNO", split: "SIM" },
+                { id: "jun-44", date: "2026-05-27", category: "Nutella - Ração", obs: "Buratto", amount: 91.80, payer: "BRUNO", split: "SIM" },
+                { id: "jun-45", date: "2026-05-27", category: "Alimentação - Almoço", obs: "Ifood", amount: 38.48, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-46", date: "2026-05-27", category: "Compras diversas (para nós)", obs: "Aparador sobrancelha", amount: 48.95, payer: "FERNANDA", split: "SIM" },
+                { id: "jun-47", date: "2026-05-28", category: "Compras diversas (para nós)", obs: "Meião futebol", amount: 39.99, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-48", date: "2026-05-28", category: "Compras diversas (para nós)", obs: "Leo Cosmeticos", amount: 27.89, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-49", date: "2026-05-29", category: "Alimentação - Almoço", obs: "Ifood", amount: 37.96, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-50", date: "2026-05-29", category: "Mercado", obs: "Brisa", amount: 101.89, payer: "FERNANDA", split: "SIM" },
+                { id: "jun-51", date: "2026-05-29", category: "Mercado", obs: "Brisa", amount: 14.89, payer: "BRUNO", split: "SIM" },
+                { id: "jun-52", date: "2026-05-29", category: "Mercado", obs: "Giassi", amount: 79.36, payer: "BRUNO", split: "SIM" },
+                { id: "jun-53", date: "2026-05-29", category: "Alimentação - Jantar", obs: "Ifood", amount: 134.29, payer: "BRUNO", split: "SIM" },
+                { id: "jun-54", date: "2026-05-30", category: "Alimentação - Almoço", obs: "Ifood", amount: 55.98, payer: "BRUNO", split: "SIM" },
+                { id: "jun-55", date: "2026-05-30", category: "Lazer", obs: "Adrenailha (escalada)", amount: 140.00, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-56", date: "2026-05-30", category: "Compras diversas (para nós)", obs: "Tênis Skechers Bruno", amount: 140.07, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-57", date: "2026-05-30", category: "Alimentação - Jantar", obs: "Ifood", amount: 90.80, payer: "BRUNO", split: "SIM" },
+                { id: "jun-58", date: "2026-05-31", category: "Alimentação - Almoço", obs: "Ifood", amount: 94.90, payer: "BRUNO", split: "SIM" },
+                { id: "jun-59", date: "2026-05-31", category: "Assinatura mensal", obs: "Disney", amount: 19.90, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-60", date: "2026-05-31", category: "Alimentação - Diversos", obs: "Pipocaria", amount: 26.00, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-61", date: "2026-05-31", category: "Alimentação - Café", obs: "Vicenza Gelateria", amount: 81.90, payer: "BRUNO", split: "SIM" },
+                { id: "jun-62", date: "2026-05-31", category: "Alimentação - Jantar", obs: "Ifood", amount: 45.69, payer: "BRUNO", split: "SIM" },
+                { id: "jun-63", date: "2026-05-31", category: "Compras diversas (para nós)", obs: "Liquidz", amount: 157.36, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-64", date: "2026-06-01", category: "Alimentação - Café", obs: "", amount: 26.00, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-65", date: "2026-06-01", category: "Alimentação - Almoço", obs: "Ifood", amount: 37.18, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-66", date: "2026-06-01", category: "Alimentação - Almoço", obs: "Ifood (Marta)", amount: 37.19, payer: "BRUNO", split: "SIM" },
+                { id: "jun-67", date: "2026-06-01", category: "Nutella - Remédios", obs: "Antibiótico Petz", amount: 166.98, payer: "FERNANDA", split: "SIM" },
+                { id: "jun-68", date: "2026-06-02", category: "Mercado", obs: "Brisa", amount: 10.90, payer: "BRUNO", split: "SIM" },
+                { id: "jun-69", date: "2026-06-02", category: "Alimentação - Café", obs: "", amount: 24.00, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-70", date: "2026-06-02", category: "Carro - Combustível", obs: "", amount: 116.41, payer: "BRUNO", split: "SIM" },
+                { id: "jun-71", date: "2026-06-02", category: "Mercado", obs: "Giassi", amount: 119.60, payer: "BRUNO", split: "SIM" },
+                { id: "jun-72", date: "2026-06-02", category: "Alimentação - Jantar", obs: "", amount: 30.88, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-73", date: "2026-06-03", category: "Alimentação - Almoço", obs: "San pietro", amount: 70.00, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-74", date: "2026-06-03", category: "Alimentação - Almoço", obs: "", amount: 30.79, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-75", date: "2026-06-03", category: "Mercado", obs: "", amount: 115.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-76", date: "2026-06-03", category: "Alimentação - Jantar", obs: "Ifood", amount: 49.96, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-77", date: "2026-06-04", category: "Alimentação - Almoço", obs: "Ifood", amount: 71.40, payer: "BRUNO", split: "SIM" },
+                { id: "jun-78", date: "2026-06-04", category: "Mercado", obs: "Brisa", amount: 28.37, payer: "BRUNO", split: "SIM" },
+                { id: "jun-79", date: "2026-06-04", category: "Alimentação - Café", obs: "", amount: 32.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-80", date: "2026-06-04", category: "Mercado", obs: "Giassi", amount: 119.80, payer: "FERNANDA", split: "SIM" },
+                { id: "jun-81", date: "2026-06-04", category: "Alimentação - Jantar", obs: "Pizza", amount: 106.33, payer: "BRUNO", split: "SIM" },
+                { id: "jun-82", date: "2026-06-05", category: "Alimentação - Almoço", obs: "", amount: 37.08, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-83", date: "2026-06-05", category: "Compras diversas (para nós)", obs: "Manutenção controle", amount: 60.00, payer: "FERNANDA", split: "SIM" },
+                { id: "jun-84", date: "2026-06-05", category: "Alimentação - Diversos", obs: "Cia Sucos", amount: 14.00, payer: "FERNANDA", split: "NÃO" },
+                { id: "jun-85", date: "2026-06-06", category: "Mercado", obs: "Giassi", amount: 161.22, payer: "BRUNO", split: "SIM" },
+                { id: "jun-86", date: "2026-06-06", category: "Alimentação - Almoço", obs: "Ifood", amount: 48.48, payer: "BRUNO", split: "SIM" },
+                { id: "jun-87", date: "2026-06-06", category: "Alimentação - Jantar", obs: "Ifood", amount: 71.34, payer: "BRUNO", split: "SIM" },
+                { id: "jun-88", date: "2026-06-07", category: "Alimentação - Almoço", obs: "Ifood", amount: 124.43, payer: "BRUNO", split: "SIM" },
+                { id: "jun-89", date: "2026-06-07", category: "Compras diversas (para nós)", obs: "Figurinhas copa", amount: 271.60, payer: "BRUNO", split: "SIM" },
+                { id: "jun-90", date: "2026-06-07", category: "Alimentação - Jantar", obs: "Ifood", amount: 73.75, payer: "BRUNO", split: "SIM" },
+                { id: "jun-91", date: "2026-06-08", category: "Alimentação - Almoço", obs: "Ifood", amount: 37.18, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-92", date: "2026-06-08", category: "Alimentação - Jantar", obs: "Ifood", amount: 80.80, payer: "BRUNO", split: "SIM" },
+                { id: "jun-93", date: "2026-06-09", category: "Alimentação - Almoço", obs: "Ifood", amount: 37.18, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-94", date: "2026-06-09", category: "Mercado", obs: "Brisa", amount: 59.88, payer: "FERNANDA", split: "SIM" },
+                { id: "jun-95", date: "2026-06-09", category: "Nutella - Consultas / Exames", obs: "Retorno Jubalupe", amount: 170.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-96", date: "2026-06-09", category: "Nutella - Remédios", obs: "Suplemento", amount: 139.90, payer: "BRUNO", split: "SIM" },
+                { id: "jun-97", date: "2026-06-09", category: "Alimentação - Jantar", obs: "Ifood", amount: 65.40, payer: "BRUNO", split: "SIM" },
+                { id: "jun-98", date: "2026-06-10", category: "Alimentação - Almoço", obs: "San pietro", amount: 70.00, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-99", date: "2026-06-10", category: "Compras diversas (para nós)", obs: "Corte cabelo", amount: 100.00, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-100", date: "2026-06-10", category: "Carro - Combustível", obs: "", amount: 150.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-101", date: "2026-06-10", category: "Alimentação - Jantar", obs: "Ifood", amount: 52.88, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-102", date: "2026-06-11", category: "Alimentação - Almoço", obs: "Ifood", amount: 37.18, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-103", date: "2026-06-11", category: "Nutella - Consultas / Exames", obs: "Jubalupe ultrasom", amount: 230.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-104", date: "2026-06-11", category: "Mercado", obs: "Brisa", amount: 32.89, payer: "BRUNO", split: "SIM" },
+                { id: "jun-105", date: "2026-06-11", category: "Alimentação - Jantar", obs: "Ifood", amount: 75.39, payer: "BRUNO", split: "SIM" },
+                { id: "jun-106", date: "2026-06-12", category: "Alimentação - Almoço", obs: "San pietro", amount: 70.00, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-107", date: "2026-06-12", category: "Lazer", obs: "Cinema Dunas", amount: 141.67, payer: "BRUNO", split: "SIM" },
+                { id: "jun-108", date: "2026-06-12", category: "Mercado", obs: "Brisa", amount: 70.80, payer: "BRUNO", split: "SIM" },
+                { id: "jun-109", date: "2026-06-12", category: "Alimentação - Jantar", obs: "Seo Rosa (Dia dos namorados)", amount: 289.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-110", date: "2026-06-13", category: "Mercado", obs: "Giassi", amount: 282.62, payer: "BRUNO", split: "SIM" },
+                { id: "jun-111", date: "2026-06-13", category: "Alimentação - Café", obs: "Vicenza Gelateria", amount: 109.80, payer: "BRUNO", split: "SIM" },
+                { id: "jun-112", date: "2026-06-14", category: "Alimentação - Almoço", obs: "Ifood", amount: 112.39, payer: "BRUNO", split: "SIM" },
+                { id: "jun-113", date: "2026-06-14", category: "Alimentação - Jantar", obs: "Ifood", amount: 43.00, payer: "BRUNO", split: "SIM" },
+                { id: "jun-114", date: "2026-06-15", category: "Alimentação - Almoço", obs: "Ifood", amount: 30.86, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-115", date: "2026-06-15", category: "Mercado", obs: "Brisa", amount: 63.56, payer: "BRUNO", split: "SIM" },
+                { id: "jun-116", date: "2026-06-16", category: "Alimentação - Café", obs: "", amount: 59.36, payer: "FERNANDA", split: "SIM" },
+                { id: "jun-117", date: "2026-06-16", category: "Alimentação - Café", obs: "Julipã", amount: 19.04, payer: "BRUNO", split: "SIM" },
+                { id: "jun-118", date: "2026-06-17", category: "Mercado", obs: "Giassi", amount: 144.84, payer: "BRUNO", split: "SIM" },
+                { id: "jun-119", date: "2026-06-17", category: "Alimentação - Almoço", obs: "Ifood", amount: 30.86, payer: "BRUNO", split: "NÃO" },
+                { id: "jun-120", date: "2026-06-17", category: "Compras diversas (para nós)", obs: "Antena TV", amount: 60.00, payer: "BRUNO", split: "SIM" }
+            ],
+            "Ago-2026": []
+        };
 
-    // Salva e atualiza
-    function saveRecords() {
-        localStorage.setItem("user_records", JSON.stringify(records));
-        render();
-    }
+        // Application State
+        let appData = {};
+        let currentInvoice = "Jun-2026";
+        let chartInstance = null;
 
-    // Carrega dados do LocalStorage
-    function loadRecords() {
-        const stored = localStorage.getItem("user_records");
-        records = stored ? JSON.parse(stored) : [];
-        render();
-    }
-
-    // Processa o Envio do Formulário
-    document.getElementById("recordForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const description = document.getElementById("description").value;
-        const value = parseFloat(document.getElementById("value").value);
-        const dueDate = document.getElementById("dueDate").value;
-        const status = document.getElementById("status").value;
-
-        records.push({
-            id: Date.now(),
-            description,
-            value,
-            dueDate,
-            status
+        // Initialize Application
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFromStorage();
+            populateCategoryDropdowns();
+            renderInvoiceSelector();
+            renderApp();
+            lucide.createIcons();
         });
 
-        saveRecords();
-        document.getElementById("recordForm").reset();
-    });
+        // Load data from LocalStorage or Fallback to Initial
+        function loadFromStorage() {
+            const saved = localStorage.getItem('cartao_app_data_v1');
+            if (saved) {
+                try {
+                    appData = JSON.parse(saved);
+                } catch(e) {
+                    appData = JSON.parse(JSON.stringify(INITIAL_DATA));
+                }
+            } else {
+                appData = JSON.parse(JSON.stringify(INITIAL_DATA));
+                saveToStorage();
+            }
+        }
 
-    // Excluir registro individual
-    function deleteRecord(id) {
-        records = records.filter(item => item.id !== id);
-        saveRecords();
-    }
+        function saveToStorage() {
+            localStorage.setItem('cartao_app_data_v1', JSON.stringify(appData));
+        }
 
-    // Renderiza a interface
-    function render() {
-        const tbody = document.getElementById("recordsList");
-        tbody.innerHTML = "";
+        function populateCategoryDropdowns() {
+            const formCat = document.getElementById('formCategory');
+            const filterCat = document.getElementById('filterCategory');
 
-        let totalVal = 0;
+            formCat.innerHTML = CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+            
+            filterCat.innerHTML = `<option value="ALL">Todas Categorias</option>` + 
+                CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
 
-        if (records.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Nenhum registro encontrado.</td></tr>`;
-        } else {
-            records.forEach(item => {
-                totalVal += item.value;
+        function renderInvoiceSelector() {
+            const selector = document.getElementById('invoiceSelector');
+            selector.innerHTML = Object.keys(appData).map(inv => 
+                `<option value="${inv}" ${inv === currentInvoice ? 'selected' : ''}>Fatura ${inv}</option>`
+            ).join('');
+        }
 
-                // Formatação de data
-                const dateParts = item.dueDate.split('-');
-                const formattedDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}` : item.dueDate;
+        function changeInvoice(invoiceName) {
+            currentInvoice = invoiceName;
+            renderApp();
+        }
 
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td data-label="Descrição">${item.description}</td>
-                    <td data-label="Valor">R$ ${item.value.toFixed(2).replace('.', ',')}</td>
-                    <td data-label="Data">${formattedDate}</td>
-                    <td data-label="Status">${item.status}</td>
-                    <td data-label="Ações">
-                        <button class="btn-danger" onclick="deleteRecord(${item.id})">Excluir</button>
+        function renderApp() {
+            calculateTotals();
+            renderExpensesTable();
+            renderCategorySummary();
+            lucide.createIcons();
+        }
+
+        // --- CALCULATIONS (Matching Excel Logic Exactly) ---
+        function calculateTotals() {
+            const expenses = appData[currentInvoice] || [];
+
+            let gastosApenasBruno = 0;
+            let gastosApenasFernanda = 0;
+            let gastosDivididos = 0;
+
+            expenses.forEach(item => {
+                const amount = parseFloat(item.amount) || 0;
+                if (item.split === "SIM") {
+                    gastosDivididos += amount;
+                } else {
+                    if (item.payer === "BRUNO") {
+                        gastosApenasBruno += amount;
+                    } else if (item.payer === "FERNANDA") {
+                        gastosApenasFernanda += amount;
+                    }
+                }
+            });
+
+            const metadeDividido = gastosDivididos / 2;
+            const totalBruno = gastosApenasBruno + metadeDividido;
+            const totalFernanda = gastosApenasFernanda + metadeDividido;
+            const totalFatura = gastosApenasBruno + gastosApenasFernanda + gastosDivididos;
+
+            // DOM Updates
+            document.getElementById('statTotalBruno').innerText = formatBRL(totalBruno);
+            document.getElementById('statApenasBruno').innerText = formatBRL(gastosApenasBruno);
+            document.getElementById('statMetaBruno').innerText = formatBRL(metadeDividido);
+
+            document.getElementById('statTotalFernanda').innerText = formatBRL(totalFernanda);
+            document.getElementById('statApenasFernanda').innerText = formatBRL(gastosApenasFernanda);
+            document.getElementById('statMetaFernanda').innerText = formatBRL(metadeDividido);
+
+            document.getElementById('statTotalFatura').innerText = formatBRL(totalFatura);
+            document.getElementById('statTotalDividido').innerText = formatBRL(gastosDivididos);
+            document.getElementById('statTotalItens').innerText = expenses.length;
+        }
+
+        // --- RENDER EXPENSE TABLE ---
+        function renderExpensesTable() {
+            const tbody = document.getElementById('expenseTableBody');
+            const emptyState = document.getElementById('emptyExpenseState');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const selectedCat = document.getElementById('filterCategory').value;
+
+            let expenses = appData[currentInvoice] || [];
+
+            // Filter logic
+            expenses = expenses.filter(item => {
+                const matchSearch = (item.category && item.category.toLowerCase().includes(search)) ||
+                                    (item.obs && item.obs.toLowerCase().includes(search)) ||
+                                    (item.amount && item.amount.toString().includes(search));
+                const matchCat = (selectedCat === 'ALL') || (item.category === selectedCat);
+                return matchSearch && matchCat;
+            });
+
+            if (expenses.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            // Sort by date descending
+            expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            tbody.innerHTML = expenses.map(item => `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                    <td class="py-3 px-4 font-mono text-xs whitespace-nowrap text-slate-500">${formatDate(item.date)}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-900">${item.category}</td>
+                    <td class="py-3 px-4 text-slate-500 text-xs">${item.obs || '-'}</td>
+                    <td class="py-3 px-4 font-bold text-slate-900 text-right whitespace-nowrap">${formatBRL(item.amount)}</td>
+                    <td class="py-3 px-4 whitespace-nowrap">
+                        <span class="px-2 py-1 rounded-md text-xs font-bold ${item.payer === 'BRUNO' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}">
+                            ${item.payer}
+                        </span>
                     </td>
-                `;
-                tbody.appendChild(tr);
+                    <td class="py-3 px-4 text-center whitespace-nowrap">
+                        <span class="px-2 py-1 rounded-md text-xs font-bold ${item.split === 'SIM' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}">
+                            ${item.split}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                        <button onclick="editExpense('${item.id}')" class="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition"><i data-lucide="edit" class="w-4 h-4"></i></button>
+                        <button onclick="deleteExpense('${item.id}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-slate-100 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // --- RENDER CATEGORY SUMMARY AND CHART ---
+        function renderCategorySummary() {
+            const expenses = appData[currentInvoice] || [];
+            
+            // Group totals by main Category group (e.g., Alimentação, Carro, Mercado, Nutella, etc.)
+            const categoryTotals = {};
+            expenses.forEach(item => {
+                const cat = item.category || 'Outros';
+                categoryTotals[cat] = (categoryTotals[cat] || 0) + (parseFloat(item.amount) || 0);
+            });
+
+            // Populate table
+            const tbody = document.getElementById('categorySummaryBody');
+            const sortedCategories = Object.keys(categoryTotals).sort((a,b) => categoryTotals[b] - categoryTotals[a]);
+
+            if (sortedCategories.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2" class="py-4 text-center text-slate-400 text-xs">Sem dados nesta fatura.</td></tr>`;
+            } else {
+                tbody.innerHTML = sortedCategories.map(cat => `
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-2.5 text-slate-700 text-xs">${cat}</td>
+                        <td class="py-2.5 text-right font-bold text-slate-900 text-xs">${formatBRL(categoryTotals[cat])}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // Render Doughnut Chart
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            const chartLabels = sortedCategories.slice(0, 7); // Top 7 for visual clarity
+            const chartData = chartLabels.map(cat => categoryTotals[cat]);
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        data: chartData,
+                        backgroundColor: [
+                            '#2563eb', '#7c3aed', '#059669', '#d97706', '#dc2626', '#0891b2', '#4f46e5'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                    },
+                    cutout: '65%'
+                }
             });
         }
 
-        document.getElementById("totalCount").innerText = records.length;
-        document.getElementById("totalValue").innerText = `R$ ${totalVal.toFixed(2).replace('.', ',')}`;
-    }
+        // --- TAB SWITCHING ---
+        function switchTab(tab) {
+            document.getElementById('tabExpenses').classList.add('hidden');
+            document.getElementById('tabCategories').classList.add('hidden');
+            document.getElementById('tabBackup').classList.add('hidden');
 
-    // Exportar Backup JSON
-    function exportData() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(records, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `backup_registros_${new Date().toISOString().slice(0,10)}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-    }
+            document.getElementById('tabBtnExpenses').className = "flex-1 py-2 px-3 rounded-lg text-center transition flex items-center justify-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50";
+            document.getElementById('tabBtnCategories').className = "flex-1 py-2 px-3 rounded-lg text-center transition flex items-center justify-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50";
+            document.getElementById('tabBtnBackup').className = "flex-1 py-2 px-3 rounded-lg text-center transition flex items-center justify-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50";
 
-    // Importar Backup JSON
-    function importData(event) {
-        const fileReader = new FileReader();
-        fileReader.onload = (e) => {
-            try {
-                const imported = JSON.parse(e.target.result);
-                if (Array.isArray(imported)) {
-                    records = imported;
-                    saveRecords();
-                    alert("Dados importados com sucesso!");
-                } else {
-                    alert("Arquivo JSON inválido.");
-                }
-            } catch (err) {
-                alert("Erro ao ler o arquivo JSON.");
+            if (tab === 'expenses') {
+                document.getElementById('tabExpenses').classList.remove('hidden');
+                document.getElementById('tabBtnExpenses').className = "flex-1 py-2 px-3 rounded-lg text-center transition flex items-center justify-center space-x-2 bg-blue-50 text-blue-600 font-semibold shadow-sm";
+            } else if (tab === 'categories') {
+                document.getElementById('tabCategories').classList.remove('hidden');
+                document.getElementById('tabBtnCategories').className = "flex-1 py-2 px-3 rounded-lg text-center transition flex items-center justify-center space-x-2 bg-blue-50 text-blue-600 font-semibold shadow-sm";
+                renderCategorySummary();
+            } else if (tab === 'backup') {
+                document.getElementById('tabBackup').classList.remove('hidden');
+                document.getElementById('tabBtnBackup').className = "flex-1 py-2 px-3 rounded-lg text-center transition flex items-center justify-center space-x-2 bg-blue-50 text-blue-600 font-semibold shadow-sm";
             }
-        };
-        fileReader.readAsText(event.target.files[0]);
-    }
-</script>
+        }
 
+        // --- MODAL & EXPENSE CRUD ---
+        function openExpenseModal(expenseToEdit = null) {
+            const modal = document.getElementById('expenseModal');
+            const form = document.getElementById('expenseForm');
+            
+            if (expenseToEdit) {
+                document.getElementById('modalTitle').innerText = "Editar Gasto";
+                document.getElementById('expenseId').value = expenseToEdit.id;
+                document.getElementById('formDate').value = expenseToEdit.date;
+                document.getElementById('formCategory').value = expenseToEdit.category;
+                document.getElementById('formObservation').value = expenseToEdit.obs || '';
+                document.getElementById('formAmount').value = expenseToEdit.amount;
+                document.getElementById('formPayer').value = expenseToEdit.payer;
+                document.getElementById('formSplit').value = expenseToEdit.split;
+            } else {
+                document.getElementById('modalTitle').innerText = "Lançar Novo Gasto";
+                form.reset();
+                document.getElementById('expenseId').value = '';
+                document.getElementById('formDate').value = new Date().toISOString().split('T')[0];
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeExpenseModal() {
+            document.getElementById('expenseModal').classList.add('hidden');
+        }
+
+        function saveExpense(e) {
+            e.preventDefault();
+            const id = document.getElementById('expenseId').value;
+            const date = document.getElementById('formDate').value;
+            const category = document.getElementById('formCategory').value;
+            const obs = document.getElementById('formObservation').value;
+            const amount = parseFloat(document.getElementById('formAmount').value);
+            const payer = document.getElementById('formPayer').value;
+            const split = document.getElementById('formSplit').value;
+
+            if (!appData[currentInvoice]) {
+                appData[currentInvoice] = [];
+            }
+
+            if (id) {
+                // Update existing
+                const index = appData[currentInvoice].findIndex(x => x.id === id);
+                if (index !== -1) {
+                    appData[currentInvoice][index] = { id, date, category, obs, amount, payer, split };
+                }
+            } else {
+                // Create new
+                const newObj = {
+                    id: 'exp-' + Date.now(),
+                    date,
+                    category,
+                    obs,
+                    amount,
+                    payer,
+                    split
+                };
+                appData[currentInvoice].push(newObj);
+            }
+
+            saveToStorage();
+            closeExpenseModal();
+            renderApp();
+        }
+
+        function editExpense(id) {
+            const expense = appData[currentInvoice].find(x => x.id === id);
+            if (expense) {
+                openExpenseModal(expense);
+            }
+        }
+
+        function deleteExpense(id) {
+            if (confirm("Deseja realmente excluir este lançamento?")) {
+                appData[currentInvoice] = appData[currentInvoice].filter(x => x.id !== id);
+                saveToStorage();
+                renderApp();
+            }
+        }
+
+        // --- INVOICE MANAGEMENT ---
+        function openInvoiceModal() {
+            document.getElementById('invoiceModal').classList.remove('hidden');
+        }
+
+        function closeInvoiceModal() {
+            document.getElementById('invoiceModal').classList.add('hidden');
+        }
+
+        function createNewInvoice(e) {
+            e.preventDefault();
+            const name = document.getElementById('newInvoiceName').value.trim();
+            if (name && !appData[name]) {
+                appData[name] = [];
+                currentInvoice = name;
+                saveToStorage();
+                renderInvoiceSelector();
+                renderApp();
+                closeInvoiceModal();
+                document.getElementById('newInvoiceName').value = '';
+            } else if (appData[name]) {
+                alert("Esta fatura já existe!");
+            }
+        }
+
+        // --- BACKUP & RESTORE ---
+        function exportDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `gastos_cartao_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importDataJSON(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (typeof imported === 'object') {
+                        appData = imported;
+                        saveToStorage();
+                        renderInvoiceSelector();
+                        renderApp();
+                        alert("Backup restaurado com sucesso!");
+                    }
+                } catch(err) {
+                    alert("Erro ao ler o arquivo JSON.");
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+
+        function resetDataToDefault() {
+            if (confirm("Tem certeza que deseja restaurar os dados originais? Todos os novos lançamentos não salvos em backup externo serão substituídos.")) {
+                appData = JSON.parse(JSON.stringify(INITIAL_DATA));
+                saveToStorage();
+                renderInvoiceSelector();
+                renderApp();
+                alert("Dados restaurados para o padrão inicial.");
+            }
+        }
+
+        // --- UTILS ---
+        function formatBRL(val) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateStr;
+        }
+    </script>
 </body>
 </html>
