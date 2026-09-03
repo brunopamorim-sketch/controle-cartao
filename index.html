@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Controle Financeiro</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #27ae60;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --border-color: #e0e0e0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            margin-bottom: 16px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        /* Resumo em Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--light-bg);
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .card span {
+            font-size: 0.85rem;
+            color: #666;
+            display: block;
+        }
+
+        .card strong {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        /* Formulario Responsivo */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+            background: var(--light-bg);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .input-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        @media (min-width: 600px) {
+            .input-row {
+                flex-direction: row;
+            }
+            .input-row > * {
+                flex: 1;
+            }
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 2px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-submit {
+            background-color: var(--secondary-color);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background-color: #219150;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+        }
+
+        /* Ações de Backup */
+        .actions-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .btn-secondary {
+            background-color: var(--primary-color);
+            color: white;
+            flex: 1;
+            font-size: 0.85rem;
+        }
+
+        /* Tabela Responsiva para Celular (Visão em Cards) */
+        .responsive-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .responsive-table th, .responsive-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 600px) {
+            .responsive-table thead {
+                display: none;
+            }
+
+            .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .responsive-table tr {
+                margin-bottom: 12px;
+                background: #fff;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 10px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            }
+
+            .responsive-table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border-bottom: 1px dotted #eee;
+            }
+
+            .responsive-table td:last-child {
+                border-bottom: none;
+            }
+
+            .responsive-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: 45%;
+                text-align: left;
+                font-weight: bold;
+                color: #666;
+                font-size: 0.85rem;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #777;
+            padding: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Controle de Registros</h1>
+
+    <!-- Resumo dos Totais -->
+    <div class="summary-cards">
+        <div class="card">
+            <span>Total de Registros</span>
+            <strong id="totalCount">0</strong>
+        </div>
+        <div class="card">
+            <span>Valor Total</span>
+            <strong id="totalValue">R$ 0,00</strong>
+        </div>
+    </div>
+
+    <!-- Formulário -->
+    <form id="recordForm" class="form-group">
+        <div class="input-row">
+            <div>
+                <label for="description">Descrição</label>
+                <input type="text" id="description" placeholder="Ex: Conta de Luz" required>
+            </div>
+            <div>
+                <label for="value">Valor (R$)</label>
+                <input type="number" id="value" step="0.01" placeholder="0,00" required>
+            </div>
+        </div>
+        <div class="input-row">
+            <div>
+                <label for="dueDate">Vencimento / Data</label>
+                <input type="date" id="dueDate" required>
+            </div>
+            <div>
+                <label for="status">Status</label>
+                <select id="status">
+                    <option value="Pendente">Pendente</option>
+                    <option value="Pago">Pago</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn-submit">Adicionar Registro</button>
+    </form>
+
+    <!-- Botões de Backup / Limpar -->
+    <div class="actions-bar">
+        <button class="btn-secondary" onclick="exportData()">Exportar Backup (JSON)</button>
+        <button class="btn-secondary" onclick="document.getElementById('importFile').click()">Importar JSON</button>
+        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+    </div>
+
+    <!-- Tabela de Dados -->
+    <h2>Registros Cadastrados</h2>
+    <table class="responsive-table">
+        <thead>
+            <tr>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="recordsList">
+            <!-- Os dados zerados aparecem aqui -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    let records = [];
+
+    // Inicializa carregando do LocalStorage
+    document.addEventListener("DOMContentLoaded", () => {
+        loadRecords();
+    });
+
+    // Salva e atualiza
+    function saveRecords() {
+        localStorage.setItem("user_records", JSON.stringify(records));
+        render();
+    }
+
+    // Carrega dados do LocalStorage
+    function loadRecords() {
+        const stored = localStorage.getItem("user_records");
+        records = stored ? JSON.parse(stored) : [];
+        render();
+    }
+
+    // Processa o Envio do Formulário
+    document.getElementById("recordForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const description = document.getElementById("description").value;
+        const value = parseFloat(document.getElementById("value").value);
+        const dueDate = document.getElementById("dueDate").value;
+        const status = document.getElementById("status").value;
+
+        records.push({
+            id: Date.now(),
+            description,
+            value,
+            dueDate,
+            status
+        });
+
+        saveRecords();
+        document.getElementById("recordForm").reset();
+    });
+
+    // Excluir registro individual
+    function deleteRecord(id) {
+        records = records.filter(item => item.id !== id);
+        saveRecords();
+    }
+
+    // Renderiza a interface
+    function render() {
+        const tbody = document.getElementById("recordsList");
+        tbody.innerHTML = "";
+
+        let totalVal = 0;
+
+        if (records.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Nenhum registro encontrado.</td></tr>`;
+        } else {
+            records.forEach(item => {
+                totalVal += item.value;
+
+                // Formatação de data
+                const dateParts = item.dueDate.split('-');
+                const formattedDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}` : item.dueDate;
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td data-label="Descrição">${item.description}</td>
+                    <td data-label="Valor">R$ ${item.value.toFixed(2).replace('.', ',')}</td>
+                    <td data-label="Data">${formattedDate}</td>
+                    <td data-label="Status">${item.status}</td>
+                    <td data-label="Ações">
+                        <button class="btn-danger" onclick="deleteRecord(${item.id})">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.getElementById("totalCount").innerText = records.length;
+        document.getElementById("totalValue").innerText = `R$ ${totalVal.toFixed(2).replace('.', ',')}`;
+    }
+
+    // Exportar Backup JSON
+    function exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(records, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `backup_registros_${new Date().toISOString().slice(0,10)}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    // Importar Backup JSON
+    function importData(event) {
+        const fileReader = new FileReader();
+        fileReader.onload = (e) => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported)) {
+                    records = imported;
+                    saveRecords();
+                    alert("Dados importados com sucesso!");
+                } else {
+                    alert("Arquivo JSON inválido.");
+                }
+            } catch (err) {
+                alert("Erro ao ler o arquivo JSON.");
+            }
+        };
+        fileReader.readAsText(event.target.files[0]);
+    }
+</script>
+
+</body>
+</html>
